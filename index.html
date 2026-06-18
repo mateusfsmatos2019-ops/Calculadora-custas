@@ -40,8 +40,16 @@
     .subtitle {
       color: #666;
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 8px;
       font-size: 0.9em;
+    }
+
+    .observacao {
+      color: #777;
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 0.82em;
+      line-height: 1.4;
     }
 
     .input-group {
@@ -203,6 +211,7 @@
   <div class="container">
     <h1>💼 Calculadora de Custas</h1>
     <p class="subtitle">Custas Trabalhistas - TRT</p>
+    <p class="observacao">Os valores são apresentados dentro dos limites mínimos e máximos normalmente aplicáveis.</p>
 
     <div class="input-group">
       <label for="valor">Valor do Acordo (R$)</label>
@@ -242,6 +251,11 @@
   </div>
 
   <script>
+    const MIN_CUSTAS = 10;
+    const MAX_CUSTAS = 1000;
+    const MIN_PRO_RATA = 5;
+    const MAX_PRO_RATA = 500;
+
     // Função para calcular as custas
     function calcularCustas() {
       const inputValor = document.getElementById('valor');
@@ -249,7 +263,7 @@
       const erro = document.getElementById('erro');
 
       // Validar se o valor é válido
-      if (isNaN(valor) || valor < 0 || valor === '') {
+      if (isNaN(valor) || valor <= 0) {
         erro.classList.add('ativo');
         document.getElementById('resultado').classList.remove('ativo');
         return;
@@ -258,9 +272,9 @@
       // Remover mensagem de erro
       erro.classList.remove('ativo');
 
-      // Calcular custas
-      const custasIntegrais = valor * 0.02;  // 2%
-      const custasProRata = valor * 0.01;    // 1%
+      // Calcular custas com limites mínimos e máximos
+      const custasIntegrais = Math.min(Math.max(valor * 0.02, MIN_CUSTAS), MAX_CUSTAS);
+      const custasProRata = Math.min(Math.max(valor * 0.01, MIN_PRO_RATA), MAX_PRO_RATA);
 
       // Mostrar resultado
       mostrarResultado(valor, custasIntegrais, custasProRata);
