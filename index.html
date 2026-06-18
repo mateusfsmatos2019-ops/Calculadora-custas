@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Custas Trabalhistas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 1.8em;
+    }
+
+    .subtitle {
+      color: #666;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 0.9em;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95em;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1em;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-calcular {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-calcular:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-calcular:active {
+      transform: translateY(0);
+    }
+
+    .btn-limpar {
+      background: #f0f0f0;
+      color: #333;
+      border: 2px solid #ddd;
+    }
+
+    .btn-limpar:hover {
+      background: #e0e0e0;
+    }
+
+    .resultado {
+      background: #f9f9f9;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .resultado.ativo {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .resultado-label {
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 8px;
+    }
+
+    .resultado-valor {
+      font-size: 2em;
+      color: #667eea;
+      font-weight: bold;
+      word-break: break-all;
+    }
+
+    .resultado-detalhes {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #ddd;
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .detalhes-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+    }
+
+    .erro {
+      color: #e74c3c;
+      font-size: 0.85em;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .erro.ativo {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 25px;
+      }
+
+      h1 {
+        font-size: 1.4em;
+      }
+
+      .resultado-valor {
+        font-size: 1.5em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💼 Calculadora de Custas</h1>
+    <p class="subtitle">Calcule 2% do valor do acordo</p>
+
+    <div class="input-group">
+      <label for="valor">Valor do Acordo (R$)</label>
+      <input 
+        type="number" 
+        id="valor" 
+        placeholder="Ex: 10000.00"
+        step="0.01"
+        min="0"
+      >
+      <div class="erro" id="erro">Por favor, insira um valor válido</div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn-calcular" onclick="calcularCustas()">Calcular</button>
+      <button class="btn-limpar" onclick="limparCalculadora()">Limpar</button>
+    </div>
+
+    <div class="resultado" id="resultado">
+      <div class="resultado-label">Valor das Custas (2%)</div>
+      <div class="resultado-valor" id="resultadoValor">R$ 0,00</div>
+      <div class="resultado-detalhes">
+        <div class="detalhes-item">
+          <span>Valor do Acordo:</span>
+          <span id="detalhesAcordo">R$ 0,00</span>
+        </div>
+        <div class="detalhes-item">
+          <span>Percentual:</span>
+          <span>2%</span>
+        </div>
+        <div class="detalhes-item">
+          <span>Custas Trabalhistas:</span>
+          <span id="detalhesCustas">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Função para calcular as custas
+    function calcularCustas() {
+      const inputValor = document.getElementById('valor');
+      const valor = parseFloat(inputValor.value);
+      const erro = document.getElementById('erro');
+
+      // Validar se o valor é válido
+      if (isNaN(valor) || valor < 0 || valor === '') {
+        erro.classList.add('ativo');
+        document.getElementById('resultado').classList.remove('ativo');
+        return;
+      }
+
+      // Remover mensagem de erro
+      erro.classList.remove('ativo');
+
+      // Calcular 2%
+      const custas = valor * 0.02;
+
+      // Mostrar resultado
+      mostrarResultado(valor, custas);
+    }
+
+    // Função para mostrar o resultado formatado
+    function mostrarResultado(valor, custas) {
+      const resultado = document.getElementById('resultado');
+      const resultadoValor = document.getElementById('resultadoValor');
+      const detalhesAcordo = document.getElementById('detalhesAcordo');
+      const detalhesCustas = document.getElementById('detalhesCustas');
+
+      // Formatar valores para o padrão brasileiro
+      resultadoValor.textContent = formatarMoeda(custas);
+      detalhesAcordo.textContent = formatarMoeda(valor);
+      detalhesCustas.textContent = formatarMoeda(custas);
+
+      // Mostrar o resultado
+      resultado.classList.add('ativo');
+    }
+
+    // Função para formatar número como moeda brasileira
+    function formatarMoeda(valor) {
+      return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format(valor);
+    }
+
+    // Função para limpar a calculadora
+    function limparCalculadora() {
+      document.getElementById('valor').value = '';
+      document.getElementById('resultado').classList.remove('ativo');
+      document.getElementById('erro').classList.remove('ativo');
+    }
+
+    // Permitir calcular ao pressionar Enter
+    document.getElementById('valor').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        calcularCustas();
+      }
+    });
+  </script>
+</body>
+</html>
