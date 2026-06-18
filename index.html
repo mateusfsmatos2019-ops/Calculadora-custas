@@ -26,7 +26,7 @@
       border-radius: 15px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       padding: 40px;
-      max-width: 500px;
+      max-width: 550px;
       width: 100%;
     }
 
@@ -137,31 +137,52 @@
       }
     }
 
+    .resultado-section {
+      margin-bottom: 20px;
+    }
+
+    .resultado-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .resultado-section-title {
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #667eea;
+      font-size: 0.95em;
+    }
+
     .resultado-label {
       color: #666;
       font-size: 0.9em;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .resultado-valor {
-      font-size: 2em;
+      font-size: 1.6em;
       color: #667eea;
       font-weight: bold;
       word-break: break-all;
+      margin-bottom: 12px;
     }
 
     .resultado-detalhes {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #ddd;
-      font-size: 0.9em;
+      font-size: 0.85em;
       color: #666;
     }
 
     .detalhes-item {
       display: flex;
       justify-content: space-between;
-      margin: 8px 0;
+      margin: 6px 0;
+      padding: 4px 0;
+    }
+
+    .detalhes-valor {
+      font-weight: 600;
+      color: #333;
     }
 
     .erro {
@@ -175,6 +196,26 @@
       display: block;
     }
 
+    .resumo-total {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .resumo-total-label {
+      font-size: 0.9em;
+      margin-bottom: 5px;
+      opacity: 0.9;
+    }
+
+    .resumo-total-valor {
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+
     @media (max-width: 600px) {
       .container {
         padding: 25px;
@@ -185,6 +226,10 @@
       }
 
       .resultado-valor {
+        font-size: 1.3em;
+      }
+
+      .resumo-total-valor {
         font-size: 1.5em;
       }
     }
@@ -193,7 +238,7 @@
 <body>
   <div class="container">
     <h1>💼 Calculadora de Custas</h1>
-    <p class="subtitle">Calcule 2% do valor do acordo</p>
+    <p class="subtitle">Custas Trabalhistas - TRT</p>
 
     <div class="input-group">
       <label for="valor">Valor do Acordo (R$)</label>
@@ -213,21 +258,44 @@
     </div>
 
     <div class="resultado" id="resultado">
-      <div class="resultado-label">Valor das Custas (2%)</div>
-      <div class="resultado-valor" id="resultadoValor">R$ 0,00</div>
-      <div class="resultado-detalhes">
-        <div class="detalhes-item">
-          <span>Valor do Acordo:</span>
-          <span id="detalhesAcordo">R$ 0,00</span>
+      <!-- Custas Integrais -->
+      <div class="resultado-section">
+        <div class="resultado-section-title">📋 Custas Integrais</div>
+        <div class="resultado-label">Valor das Custas (2%)</div>
+        <div class="resultado-valor" id="resultadoIntegral">R$ 0,00</div>
+        <div class="resultado-detalhes">
+          <div class="detalhes-item">
+            <span>Valor do Acordo:</span>
+            <span class="detalhes-valor" id="detalhesAcordo1">R$ 0,00</span>
+          </div>
+          <div class="detalhes-item">
+            <span>Percentual:</span>
+            <span class="detalhes-valor">2%</span>
+          </div>
         </div>
-        <div class="detalhes-item">
-          <span>Percentual:</span>
-          <span>2%</span>
+      </div>
+
+      <!-- Custas Pro Rata -->
+      <div class="resultado-section">
+        <div class="resultado-section-title">⚖️ Custas Pro Rata</div>
+        <div class="resultado-label">Valor das Custas (1%)</div>
+        <div class="resultado-valor" id="resultadoProRata">R$ 0,00</div>
+        <div class="resultado-detalhes">
+          <div class="detalhes-item">
+            <span>Valor do Acordo:</span>
+            <span class="detalhes-valor" id="detalhesAcordo2">R$ 0,00</span>
+          </div>
+          <div class="detalhes-item">
+            <span>Percentual:</span>
+            <span class="detalhes-valor">1% (50% das custas integrais)</span>
+          </div>
         </div>
-        <div class="detalhes-item">
-          <span>Custas Trabalhistas:</span>
-          <span id="detalhesCustas">R$ 0,00</span>
-        </div>
+      </div>
+
+      <!-- Resumo Total -->
+      <div class="resumo-total">
+        <div class="resumo-total-label">Total de Custas Possíveis</div>
+        <div class="resumo-total-valor" id="resumoTotal">R$ 0,00</div>
       </div>
     </div>
   </div>
@@ -249,24 +317,29 @@
       // Remover mensagem de erro
       erro.classList.remove('ativo');
 
-      // Calcular 2%
-      const custas = valor * 0.02;
+      // Calcular custas
+      const custasIntegrais = valor * 0.02;  // 2%
+      const custasProRata = valor * 0.01;    // 1%
+      const totalCustas = custasIntegrais + custasProRata;
 
       // Mostrar resultado
-      mostrarResultado(valor, custas);
+      mostrarResultado(valor, custasIntegrais, custasProRata, totalCustas);
     }
 
     // Função para mostrar o resultado formatado
-    function mostrarResultado(valor, custas) {
+    function mostrarResultado(valor, custasIntegrais, custasProRata, totalCustas) {
       const resultado = document.getElementById('resultado');
-      const resultadoValor = document.getElementById('resultadoValor');
-      const detalhesAcordo = document.getElementById('detalhesAcordo');
-      const detalhesCustas = document.getElementById('detalhesCustas');
 
-      // Formatar valores para o padrão brasileiro
-      resultadoValor.textContent = formatarMoeda(custas);
-      detalhesAcordo.textContent = formatarMoeda(valor);
-      detalhesCustas.textContent = formatarMoeda(custas);
+      // Atualizar Custas Integrais
+      document.getElementById('resultadoIntegral').textContent = formatarMoeda(custasIntegrais);
+      document.getElementById('detalhesAcordo1').textContent = formatarMoeda(valor);
+
+      // Atualizar Custas Pro Rata
+      document.getElementById('resultadoProRata').textContent = formatarMoeda(custasProRata);
+      document.getElementById('detalhesAcordo2').textContent = formatarMoeda(valor);
+
+      // Atualizar Resumo Total
+      document.getElementById('resumoTotal').textContent = formatarMoeda(totalCustas);
 
       // Mostrar o resultado
       resultado.classList.add('ativo');
