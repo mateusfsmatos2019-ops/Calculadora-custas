@@ -211,18 +211,29 @@
   <div class="container">
     <h1>💼 Calculadora de Custas</h1>
     <p class="subtitle">Custas Trabalhistas - TRT</p>
-    <p class="observacao">Os valores são apresentados dentro dos limites mínimos e máximos normalmente aplicáveis.</p>
+    <p class="observacao">Custas calculadas em 2%, com minimo legal de R$ 10,64 e maximo de 4x o teto do RGPS informado abaixo.</p>
 
     <div class="input-group">
       <label for="valor">Valor do Acordo (R$)</label>
       <input 
-        type="number" 
+        type="text" 
         id="valor" 
-        placeholder="Ex: 10000.00"
-        step="0.01"
-        min="0"
+        placeholder="Ex: 10.000,00"
+        inputmode="decimal"
       >
       <div class="erro" id="erro">Por favor, insira um valor válido</div>
+    </div>
+
+    <div class="input-group">
+      <label for="tetoRgps">Teto do RGPS (R$)</label>
+      <input
+        type="text"
+        id="tetoRgps"
+        value="8.475,55"
+        placeholder="Ex: 8.475,55"
+        inputmode="decimal"
+      >
+      <div class="erro" id="erroTeto">Por favor, informe um teto do RGPS válido</div>
     </div>
 
     <div class="button-group">
@@ -246,53 +257,122 @@
           <span>Custas Pro Rata (1%):</span>
           <span class="detalhes-valor" id="detalhesProRata">R$ 0,00</span>
         </div>
+        <div class="detalhes-item">
+          <span>Teto RGPS utilizado:</span>
+          <span class="detalhes-valor" id="detalhesTeto">R$ 0,00</span>
+        </div>
+        <div class="detalhes-item">
+          <span>Limite maximo das Custas (4x teto):</span>
+          <span class="detalhes-valor" id="detalhesMaximoCustas">R$ 0,00</span>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    const MIN_CUSTAS = 10;
-    const MAX_CUSTAS = 1000;
-    const MIN_PRO_RATA = 5;
-    const MAX_PRO_RATA = 500;
+    const PERCENTUAL_CUSTAS = 0.02;
+    const PERCENTUAL_PRO_RATA = 0.01;
+
+    // Art. 789 da CLT: minimo fixo de R$ 10,64 e maximo de 4x o limite do RGPS.
+    const MIN_CUSTAS = 10.64;
+    const TETO_RGPS_PADRAO = 8475.55; // Portaria Interministerial MPS/MF n. 13/2026
+
+    // Converte texto monetario para numero, aceitando formatos BR e US.
+    function parseValorMonetario(valorTexto) {
+      if (typeof valorTexto !== 'string') {
+        return NaN;
+      }
+
+      const texto = valorTexto.trim().replace(/\s/g, '');
+      if (!texto) {
+        return NaN;
+      }
+
+      const temVirgula = texto.includes(',');
+      const temPonto = texto.includes('.');
+      let normalizado = texto;
+
+      if (temVirgula && temPonto) {
+        if (texto.lastIndexOf(',') > texto.lastIndexOf('.')) {
+          // Formato BR: 1.234,56 -> 1234.56
+          normalizado = texto.replace(/\./g, '').replace(',', '.');
+        } else {
+          // Formato US: 1,234.56 -> 1234.56
+          normalizado = texto.replace(/,/g, '');
+        }
+      } else if (temVirgula) {
+        normalizado = texto.replace(',', '.');
+      }
+
+      normalizado = normalizado.replace(/[^0-9.-]/g, '');
+      return Number(normalizado);
+    }
+
+    function calcularLimitesCustas(tetoRgps) {
+      const maxCustas = tetoRgps * 4;
+      return {
+        minCustas: MIN_CUSTAS,
+        maxCustas,
+        minProRata: MIN_CUSTAS / 2,
+        maxProRata: maxCustas / 2
+      };
+    }
 
     // Função para calcular as custas
     function calcularCustas() {
       const inputValor = document.getElementById('valor');
-      const valor = parseFloat(inputValor.value);
+      const inputTetoRgps = document.getElementById('tetoRgps');
+      const valor = parseValorMonetario(inputValor.value);
+      const tetoRgps = parseValorMonetario(inputTetoRgps.value);
       const erro = document.getElementById('erro');
+      const erroTeto = document.getElementById('erroTeto');
 
       // Validar se o valor é válido
       if (isNaN(valor) || valor <= 0) {
         erro.classList.add('ativo');
+      } else {
+        erro.classList.remove('ativo');
+      }
+
+      // Validar teto do RGPS
+      if (isNaN(tetoRgps) || tetoRgps <= 0) {
+        erroTeto.classList.add('ativo');
+      } else {
+        erroTeto.classList.remove('ativo');
+      }
+
+      if (isNaN(valor) || valor <= 0 || isNaN(tetoRgps) || tetoRgps <= 0) {
         document.getElementById('resultado').classList.remove('ativo');
         return;
       }
 
-      // Remover mensagem de erro
-      erro.classList.remove('ativo');
+      const limites = calcularLimitesCustas(tetoRgps);
 
       // Calcular custas com limites mínimos e máximos
-      const custasIntegrais = Math.min(Math.max(valor * 0.02, MIN_CUSTAS), MAX_CUSTAS);
-      const custasProRata = Math.min(Math.max(valor * 0.01, MIN_PRO_RATA), MAX_PRO_RATA);
+      const custasIntegrais = Math.min(Math.max(valor * PERCENTUAL_CUSTAS, limites.minCustas), limites.maxCustas);
+      const custasProRata = Math.min(Math.max(valor * PERCENTUAL_PRO_RATA, limites.minProRata), limites.maxProRata);
 
       // Mostrar resultado
-      mostrarResultado(valor, custasIntegrais, custasProRata);
+      mostrarResultado(valor, custasIntegrais, custasProRata, tetoRgps, limites.maxCustas);
     }
 
     // Função para mostrar o resultado formatado
-    function mostrarResultado(valor, custasIntegrais, custasProRata) {
+    function mostrarResultado(valor, custasIntegrais, custasProRata, tetoRgps, maxCustas) {
       const resultado = document.getElementById('resultado');
       const resultadoValor = document.getElementById('resultadoValor');
       const detalhesAcordo = document.getElementById('detalhesAcordo');
       const detalhesCustas = document.getElementById('detalhesCustas');
       const detalhesProRata = document.getElementById('detalhesProRata');
+      const detalhesTeto = document.getElementById('detalhesTeto');
+      const detalhesMaximoCustas = document.getElementById('detalhesMaximoCustas');
 
       // Atualizar valores
       resultadoValor.textContent = formatarMoeda(custasIntegrais);
       detalhesAcordo.textContent = formatarMoeda(valor);
       detalhesCustas.textContent = formatarMoeda(custasIntegrais);
       detalhesProRata.textContent = formatarMoeda(custasProRata);
+      detalhesTeto.textContent = formatarMoeda(tetoRgps);
+      detalhesMaximoCustas.textContent = formatarMoeda(maxCustas);
 
       // Mostrar o resultado
       resultado.classList.add('ativo');
@@ -309,12 +389,20 @@
     // Função para limpar a calculadora
     function limparCalculadora() {
       document.getElementById('valor').value = '';
+      document.getElementById('tetoRgps').value = formatarMoeda(TETO_RGPS_PADRAO).replace('R$\xa0', '');
       document.getElementById('resultado').classList.remove('ativo');
       document.getElementById('erro').classList.remove('ativo');
+      document.getElementById('erroTeto').classList.remove('ativo');
     }
 
     // Permitir calcular ao pressionar Enter
     document.getElementById('valor').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') {
+        calcularCustas();
+      }
+    });
+
+    document.getElementById('tetoRgps').addEventListener('keypress', function(event) {
       if (event.key === 'Enter') {
         calcularCustas();
       }
