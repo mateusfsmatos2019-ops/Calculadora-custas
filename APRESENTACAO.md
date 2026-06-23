@@ -35,7 +35,9 @@ A ferramenta aceita valores em formato brasileiro (1.000,00) e formato americano
 
 ## Acesso
 
-O site está disponível em: [mateusfsmatos2019-ops.github.io/Calculadora-custas](https://mateusfsmatos2019-ops.github.io/Calculadora-custas/)
+O site está disponível em:
+
+[https://mateusfsmatos2019-ops.github.io/Calculadora-custas/](https://mateusfsmatos2019-ops.github.io/Calculadora-custas/)
 
 ---
 

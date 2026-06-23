@@ -35,7 +35,9 @@ The tool accepts values in Brazilian format (1.000,00) and American format (1,00
 
 ## Access
 
-The site is available at: [mateusfsmatos2019-ops.github.io/Calculadora-custas](https://mateusfsmatos2019-ops.github.io/Calculadora-custas/)
+The site is available at:
+
+[https://mateusfsmatos2019-ops.github.io/Calculadora-custas/](https://mateusfsmatos2019-ops.github.io/Calculadora-custas/)
 
 ---
 
