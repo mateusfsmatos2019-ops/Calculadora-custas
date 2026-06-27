@@ -44,6 +44,35 @@
       font-size: 0.9em;
     }
 
+    .apresentacao {
+      background: linear-gradient(180deg, #f8faff 0%, #eef3ff 100%);
+      border: 1px solid rgba(102, 126, 234, 0.18);
+      border-radius: 12px;
+      padding: 18px 18px 16px;
+      margin: 0 0 24px;
+    }
+
+    .apresentacao h2 {
+      color: #2b3566;
+      font-size: 1.02em;
+      margin-bottom: 8px;
+    }
+
+    .apresentacao p {
+      color: #4f597a;
+      font-size: 0.9em;
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .apresentacao p:last-child {
+      margin-bottom: 0;
+    }
+
+    .apresentacao strong {
+      color: #2b3566;
+    }
+
     .observacao {
       color: #777;
       text-align: center;
@@ -212,6 +241,26 @@
     <h1>💼 Calculadora de Custas</h1>
     <p class="subtitle">Custas Trabalhistas - TRT</p>
     <p class="observacao">Custas calculadas em 2%, com minimo legal de R$ 10,64 e maximo de 4x o teto do RGPS informado abaixo.</p>
+
+    <section class="apresentacao" aria-label="Apresentação pública da calculadora">
+      <h2>Sobre esta ferramenta</h2>
+      <p>
+        Esta calculadora foi criada para apoiar participantes de audiências trabalhistas
+        em contexto telepresencial, especialmente quando a audiência ocorre via Zoom.
+        O objetivo é reduzir erros de conferência, dar mais agilidade ao cálculo e
+        facilitar a compreensão do valor das custas em tempo real.
+      </p>
+      <p>
+        <strong>Uso recomendado:</strong> apoio visual durante a audiência, sem substituir
+        a conferência oficial da secretaria, do juízo ou do sistema institucional.
+        A versão web serve como ponto de acesso simples e imediato; uma futura integração
+        com Zoom App pode tornar a experiência ainda mais prática.
+      </p>
+      <p>
+        Como próximo passo, o projeto pode evoluir para uma integração com <strong>Zoom Apps</strong>,
+        permitindo acesso mais direto dentro do ambiente da audiência telepresencial.
+      </p>
+    </section>
 
     <div class="input-group">
       <label for="valor">Valor do Acordo (R$)</label>
